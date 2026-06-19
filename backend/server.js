@@ -32,6 +32,10 @@ app.post("/register", async (req, res) => {
       email,
       password: hashedPassword,
     });
+    app.get("/register", (req, res) => {
+  res.send("This is the registration endpoint. Use POST to register.");
+});
+
 
     await user.save();
 
