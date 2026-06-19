@@ -16,7 +16,7 @@ const [editDescription, setEditDescription] = useState("");
   const getTasks = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:500/tasks"
+        "https://task-manager-backend-2l2t.onrender.com/tasks"
       );
 
       setTasks(res.data);
