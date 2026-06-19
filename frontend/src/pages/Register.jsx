@@ -14,7 +14,7 @@ function Register() {
   const handleRegister = async () => {
   try {
     await axios.post(
-      " https://task-manager-backend-2l2t.onrender.com/register",
+      "https://task-manager-backend-2l2t.onrender.com/register",
       {
         name,
         email,

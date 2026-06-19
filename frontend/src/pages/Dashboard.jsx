@@ -28,7 +28,7 @@ const [editDescription, setEditDescription] = useState("");
   const createTask = async () => {
     try {
       await axios.post(
-        " https://task-manager-backend-2l2t.onrender.com/tasks",
+        "https://task-manager-backend-2l2t.onrender.com/tasks",
         {
           title,
           description,
@@ -52,7 +52,7 @@ setTimeout(() => {
   const deleteTask = async (id) => {
     try {
       await axios.delete(
-        ` https://task-manager-backend-2l2t.onrender.com/tasks/${id}`
+        `https://task-manager-backend-2l2t.onrender.com/tasks/${id}`
       );
       
 
@@ -67,7 +67,7 @@ setTimeout(() => {
 const editTask = async (id) => {
   try {
     await axios.put(
-      ` https://task-manager-backend-2l2t.onrender.com/tasks/${id}`,
+      `https://task-manager-backend-2l2t.onrender.com/tasks/${id}`,
       {
         title: editTitle,
         description: editDescription,
@@ -92,7 +92,7 @@ const editTask = async (id) => {
 
     try {
       await axios.put(
-        ` https://task-manager-backend-2l2t.onrender.com/tasks/${task._id}`,
+        `https://task-manager-backend-2l2t.onrender.com/tasks/${task._id}`,
         {
           status: newStatus,
         }
