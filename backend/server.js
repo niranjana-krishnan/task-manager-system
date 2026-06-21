@@ -3,39 +3,54 @@ const bcrypt = require("bcryptjs");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+
 const Task = require("./models/Task");
-require("dotenv").config();
+const User = require("./models/User");
+
+dotenv.config();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-app.use(express.json());
-const User = require("./models/User");
+// MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
-  
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
 
+// Home Route
 app.get("/", (req, res) => {
   res.send("Server Working");
 });
+
+// Register Route
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const existingUser = await User.findOne({
+      email,
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
+    );
 
     const user = new User({
       name,
       email,
       password: hashedPassword,
     });
-    app.get("/register", (req, res) => {
-  res.send("This is the registration endpoint. Use POST to register.");
-});
-
 
     await user.save();
 
@@ -44,16 +59,21 @@ app.post("/register", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
     res.status(500).json({
       message: "Server Error",
     });
   }
 });
+
+// Login Route
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      email,
+    });
 
     if (!user) {
       return res.status(400).json({
@@ -73,15 +93,15 @@ app.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-  { userId: user._id },
-  process.env.JWT_SECRET,
-  { expiresIn: "1d" }
-);
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-res.json({
-  message: "Login Successful",
-  token,
-});
+    res.json({
+      message: "Login Successful",
+      token,
+    });
   } catch (error) {
     console.log(error);
 
@@ -90,6 +110,8 @@ res.json({
     });
   }
 });
+
+// Create Task
 app.post("/tasks", async (req, res) => {
   try {
     const {
@@ -97,7 +119,7 @@ app.post("/tasks", async (req, res) => {
       description,
       status,
       dueDate,
-      assignedTo
+      assignedTo,
     } = req.body;
 
     const task = new Task({
@@ -105,76 +127,86 @@ app.post("/tasks", async (req, res) => {
       description,
       status,
       dueDate,
-      assignedTo
+      assignedTo,
     });
 
     await task.save();
 
     res.status(201).json({
       message: "Task Created Successfully",
-      task
+      task,
     });
-
   } catch (error) {
     console.log(error);
 
     res.status(500).json({
-      message: "Server Error"
+      message: "Server Error",
     });
   }
 });
+
+// Get All Tasks
 app.get("/tasks", async (req, res) => {
   try {
     const tasks = await Task.find();
 
     res.json(tasks);
-
   } catch (error) {
     console.log(error);
 
     res.status(500).json({
-      message: "Server Error"
+      message: "Server Error",
     });
   }
 });
+
+// Update Task
 app.put("/tasks/:id", async (req, res) => {
   try {
-    const updatedTask = await Task.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const updatedTask =
+      await Task.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+      );
 
     res.json({
       message: "Task Updated",
-      task: updatedTask
+      task: updatedTask,
     });
-
   } catch (error) {
     console.log(error);
 
     res.status(500).json({
-      message: "Server Error"
+      message: "Server Error",
     });
   }
 });
+
+// Delete Task
 app.delete("/tasks/:id", async (req, res) => {
   try {
-    await Task.findByIdAndDelete(req.params.id);
+    await Task.findByIdAndDelete(
+      req.params.id
+    );
 
     res.json({
-      message: "Task Deleted"
+      message: "Task Deleted",
     });
-
   } catch (error) {
     console.log(error);
 
     res.status(500).json({
-      message: "Server Error"
+      message: "Server Error",
     });
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+// Server Start
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(
+    `Server running on port ${PORT}`
+  );
 });
